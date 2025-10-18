@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1e1b4b">
+  <meta name="description" content=" Ã—»…  ›«⁄·Ì… „” ÊÕ«… „‰ √·› ·Ì·… Ê·Ì·… ó «ﬂ » ”ƒ«·ﬂ √Ê ﬁ’ ﬂ Ê«Õ’· ⁄·Ï —œÊœ –«  ÿ«»⁄ ﬁ’’Ì.">
+  <link rel="manifest" href="manifest.json">
+  <title>√·› ·Ì·… Ê·Ì·…</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html,body { height: 100%; }
+    body { font-family: 'Segoe UI', Tahoma, Arial, "Noto Naskh Arabic", sans-serif; overflow: hidden; touch-action: pan-y; background: linear-gradient(to bottom, #1e1b4b, #581c87, #9f1239); }
+    #app { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+    #canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+    .header { position: absolute; top: 0; left: 0; right: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent); padding: 1rem; z-index: 10; }
+    .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
+    .title { font-size: 1.4rem; font-weight: 700; color: #FFD54A; display: flex; align-items: center; gap: 0.5rem; font-family: serif; text-shadow: 0 0 12px rgba(252, 211, 77, 0.45); }
+    .icons { display: flex; gap: 0.5rem; font-size: 1.1rem; color: #fff; }
+    .icon { padding: 0.25rem 0.5rem; border-radius: 8px; background: rgba(255,255,255,0.06); box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+    .stories-container { position: absolute; top: 5.5rem; left: 1rem; right: 1rem; max-height: 40vh; overflow-y: auto; background: rgba(0,0,0,0.55); backdrop-filter: blur(12px); border-radius: 1rem; padding: 1rem; border: 2px solid rgba(255,193,7,0.18); z-index: 12; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+    .stories-container.show { display: block; animation: slideDown 0.28s ease-out; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    .story-item { margin-bottom: 0.9rem; padding-bottom: 0.85rem; border-bottom: 1px solid rgba(255,193,7,0.08); }
+    .story-prompt { color: #FFD54A; font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .story-response { color: rgba(255,255,255,0.95); font-size: 0.92rem; line-height: 1.75; font-family: serif; }
+    .response-panel { position: absolute; top: 28%; left: 1rem; right: 1rem; max-width: 760px; margin: 0 auto; background: linear-gradient(135deg, rgba(88,28,135,0.96), rgba(159,18,57,0.96)); backdrop-filter: blur(18px); border-radius: 1.6rem; padding: 1.6rem; border: 3px solid rgba(255,193,7,0.45); box-shadow: 0 25px 60px rgba(0,0,0,0.55); z-index: 15; display: none; }
+    .response-panel.show { display: block; animation: popIn 0.34s cubic-bezier(0.22, 1, 0.36, 1); }
+    @keyframes popIn { 0% { opacity: 0; transform: scale(0.96); } 100% { opacity: 1; transform: scale(1); } }
+    .response-header { display: flex; align-items: start; gap: 0.9rem; margin-bottom: 0.6rem; }
+    .response-icon { font-size: 1.9rem; color: #FFD54A; }
+    .response-title { color: #FFD54A; font-weight: 800; font-size: 1.05rem; margin-bottom: 0.35rem; text-shadow: 0 0 10px rgba(252,211,77,0.45); }
+    .response-text { color: #fff; line-height: 1.85; text-align: right; font-family: serif; font-size: 1rem; white-space: pre-wrap; }
+    .input-area { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); padding: 1rem; z-index: 12; }
+    .input-container { max-width: 1200px; margin: 0 auto; background: rgba(0,0,0,0.78); backdrop-filter: blur(12px); border-radius: 3rem; border: 2px solid rgba(255,193,7,0.35); padding: 0.5rem; display: flex; align-items: center; gap: 0.6rem; box-shadow: 0 10px 40px rgba(0,0,0,0.45); }
+    .input-field { flex: 1; background: transparent; border: none; color: #fff; padding: 0.9rem 1rem; outline: none; font-size: 1rem; font-family: serif; direction: rtl; text-align: right; }
+    .input-field::placeholder { color: rgba(255,193,7,0.48); }
+    .send-button { background: linear-gradient(135deg, #f59e0b, #fb923c); border: none; border-radius: 50%; width: 3.6rem; height: 3.6rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .12s ease; box-shadow: 0 6px 20px rgba(245,158,11,0.35); }
+    .send-button:active:not(:disabled) { transform: scale(0.96); }
+    .send-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .send-button svg { width: 1.6rem; height: 1.6rem; stroke: white; fill: none; stroke-width: 2.2; }
+    .loader { border: 3px solid white; border-top-color: transparent; border-radius: 50%; width: 1.6rem; height: 1.6rem; animation: spin 0.6s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .status-text { color: rgba(255,193,7,0.9); font-size: 0.9rem; text-align: center; margin-top: 0.6rem; font-family: serif; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 6px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,193,7,0.45); border-radius: 6px; }
+    @media (max-width:420px){
+      .response-panel{top:22%}
+      .title{font-size:1.1rem}
+      .stories-container{top:4.8rem}
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <canvas id="canvas"></canvas>
+
+    <div class="header">
+      <div class="header-content">
+        <div class="title">
+          <span>??</span>
+          <span>√·› ·Ì·… Ê·Ì·…</span>
+        </div>
+        <div class="icons">
+          <div id="toggleStories" class="icon" title="⁄—÷ «·ﬁ’’">ﬁ’…</div>
+          <div id="clearBtn" class="icon" title="„”Õ «·”Ã·">„”Õ</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="storiesContainer" class="stories-container"></div>
+
+    <div id="responsePanel" class="response-panel" role="dialog" aria-live="polite">
+      <div class="response-header">
+        <span class="response-icon">??</span>
+        <div style="flex:1;">
+          <div class="response-title">—œ ‘Â—“«œ</div>
+          <div id="responseText" class="response-text"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-container">
+        <input id="inputField" type="text" class="input-field" placeholder="«ﬂ » ﬁ’ ﬂ √Ê ”ƒ«·ﬂ Â‰«..." dir="rtl" autocomplete="off" />
+        <button id="sendButton" class="send-button" title="√—”·">
+          <svg id="sendIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          <div id="loader" class="loader" aria-hidden="true"></div>
+        </button>
+      </div>
+      <div class="status-text">«ﬂ » —”«·… ﬁ’Ì—… Ê” ŸÂ— ·ﬂ —œÊœ „” ÊÕ«… „‰ ÿ«»⁄ √·› ·Ì·… Ê·Ì·….</div>
+    </div>
+  </div>
+
+  <script>
+    // Service worker inline registration (PWA helper)
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', ()=>{
+        try {
+          const sw = `
+            const CACHE_NAME = '1001-nights-cache-v1';
+            self.addEventListener('install', event => {
+              self.skipWaiting();
+              event.waitUntil(
+                caches.open(CACHE_NAME).then(cache => {
+                  return cache.addAll(['/']);
+                })
+              );
+            });
+            self.addEventListener('fetch', event => {
+              event.respondWith(
+                caches.match(event.request).then(resp => resp || fetch(event.request))
+              );
+            });
+          `;
+          const blob = new Blob([sw], {type: 'application/javascript'});
+          navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{/* ignore */});
+        } catch(e) { /* ignore */ }
+      });
+    }
+
+    // Canvas animation (stars + lamp)
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const stars = Array.from({length: 180}, ()=>({
+      x: Math.random()*window.innerWidth,
+      y: Math.random()*window.innerHeight,
+      size: Math.random()*2.4 + 0.2,
+      speed: Math.random()*0.6 + 0.1,
+      opacity: Math.random()*0.7 + 0.25
+    }));
+
+    let rotation = 0, lampGlow = 0, glowDir = 1;
+    function animate(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = 'rgba(6,6,20,0.12)';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+
+      stars.forEach(s=>{
+        const t = Math.sin(Date.now()*0.0009 + s.x*0.0005)*0.5 + 0.5;
+        ctx.fillStyle = 'rgba(255,255,255,' + (s.opacity * t) + ')';
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI*2); ctx.fill();
+        s.y += s.speed;
+        if(s.y > canvas.height) { s.y = 0; s.x = Math.random()*canvas.width; }
+      });
+
+      const cx = canvas.width/2, cy = canvas.height/2;
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(rotation * 0.01);
+      lampGlow += glowDir * 0.012;
+      if(lampGlow > 1 || lampGlow < 0) glowDir *= -1;
+      const gs = 110 + lampGlow*50;
+      const g = ctx.createRadialGradient(0,0,0,0,0,gs);
+      g.addColorStop(0, 'rgba(255,215,0,' + (0.48 + lampGlow*0.22) + ')');
+      g.addColorStop(0.4, 'rgba(255,165,0,' + (0.28 + lampGlow*0.12) + ')');
+      g.addColorStop(1, 'rgba(255,215,0,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(-gs, -gs, gs*2, gs*2);
+
+      // lamp body
+      ctx.fillStyle = '#FFD700'; ctx.shadowColor = 'rgba(255,215,0,0.9)'; ctx.shadowBlur = 22;
+      ctx.beginPath(); ctx.ellipse(0,0,48,68,0,0,Math.PI*2); ctx.fill();
+
+      ctx.fillStyle = '#FFA500'; ctx.shadowBlur = 16;
+      ctx.beginPath(); ctx.ellipse(0,-24,34,18,0,0,Math.PI*2); ctx.fill();
+
+      ctx.restore();
+      rotation++;
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // --- App logic (Arabic, corrected) ---
+    const input = document.getElementById('inputField');
+    const btn = document.getElementById('sendButton');
+    const icon = document.getElementById('sendIcon');
+    const loader = document.getElementById('loader');
+    const panel = document.getElementById('responsePanel');
+    const txt = document.getElementById('responseText');
+    const stor = document.getElementById('storiesContainer');
+    const toggleStories = document.getElementById('toggleStories');
+    const clearBtn = document.getElementById('clearBtn');
+
+    // Sample fixed responses (›Ì ÿ«»⁄ ﬁ’’Ì ﬂ·«”ÌﬂÌ »”Ìÿ)
+    const responses = [
+      "ﬁ«·  ‘Â—“«œ: Ê›Ì ·Ì·Ú „‰ ·Ì«·Ì «·»Â«¡° Ã·” ı √ı”„⁄ «·‰«” Õﬂ«Ì…  ı‰”ÌÂ„ ’ÛŒ» «·œÂ—.',
+      "√Œ»— ﬂ «·Õﬂ«Ì… √‰ ·ﬂ· ”ƒ«· »«»° Ê·ﬂ· »«» „› «Õ° Ê„› «Õﬂ «·ÌÊ„ ÂÊ «·’»— Ê«·Õﬂ„….",
+      "—œ¯Û  ⁄·ÌÂ« «·—ÌÕ „‰ »Ì‰ «·‰Ê«›–: ≈‰ √—œ Û œ—»« ÃœÌœ«° ›«ÿÊˆ ’›Õ… «·ŒÊ› Ê«»œ√ «·”ÿ—.",
+      "Â‰« »Ì‰ «·‘„Ê⁄ Ê«·‰ÃÊ„  ıÊ·œ «·√”∆·… Ê ıÃÛÌ»Â« «·ﬁ’’ ó ﬁ· „« ›Ì ﬁ·»ﬂ · ı”„⁄ ·ﬂ Õﬂ«Ì….",
+      "√Ã«» Â« ‘Â—“«œ »Â„”: ≈‰ √—œ  ‰’ÌÕ… ›√‰« √ıŒ»—ﬂ° Ê≈‰ √—œ  Œ—«›… ›√‰« √—ÊÌÂ«° Ê≈‰ √—œ  œ—”« ›√⁄·¯ˆ„ﬂ."
+    ];
+
+    // In-memory stories (prompt + response)
+    const stories = [];
+
+    function addStory(prompt, response){
+      stories.unshift({prompt, response});
+      if(stories.length > 40) stories.pop();
+      updateUI();
+    }
+
+    function updateUI(){
+      if(stories.length === 0){
+        stor.classList.remove('show');
+        stor.innerHTML = '';
+        return;
+      }
+      stor.classList.add('show');
+      stor.innerHTML = stories.map(s=>{
+        return `<div class="story-item">
+                  <div class="story-prompt">${escapeHtml(s.prompt)}</div>
+                  <div class="story-response">${escapeHtml(s.response)}</div>
+                </div>`;
+      }).join('');
+    }
+
+    function showResp(text){
+      txt.textContent = text;
+      panel.classList.add('show');
+      // hide after some seconds
+      setTimeout(()=> panel.classList.remove('show'), 7000);
+    }
+
+    function send(){
+      const p = input.value.trim();
+      if(!p) return;
+      btn.disabled = true;
+      icon.style.display = 'none';
+      loader.style.display = 'block';
+
+      // Simulate a small delay as if processing / calling API
+      setTimeout(()=>{
+        // choose a response that may reference the user input lightly
+        const base = responses[Math.floor(Math.random()*responses.length)];
+        const combined = `${base}\n\nó (—œ ⁄·Ï: "${p}")`;
+        addStory(p, combined);
+        showResp(combined);
+        input.value = '';
+        btn.disabled = false;
+        icon.style.display = 'block';
+        loader.style.display = 'none';
+      }, 900);
+    }
+
+    btn.addEventListener('click', send);
+    input.addEventListener('keypress', e => { if(e.key === 'Enter') send(); });
+
+    // helper: escape HTML
+    function escapeHtml(s){
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Toggle stories panel
+    toggleStories.addEventListener('click', ()=> {
+      if(stor.classList.contains('show')) { stor.classList.remove('show'); }
+      else { stor.classList.add('show'); updateUI(); }
+    });
+
+    // Clear stories
+    clearBtn.addEventListener('click', ()=> {
+      stories.length = 0;
+      updateUI();
+      showResp(" „ „”Õ ”Ã· «·ﬁ’’.");
+    });
+
+    // Prevent context menu on long press (useful for mobile)
+    document.addEventListener('contextmenu', e => e.preventDefault());
+
+    // Accessibility: allow focusing input on touch anywhere near bottom
+    document.body.addEventListener('touchstart', function(e){
+      // if touch near bottom area, focus input
+      const y = e.touches && e.touches[0] && e.touches[0].clientY;
+      if(!y) return;
+      if(y > window.innerHeight - 220) input.focus();
+    }, {passive: true});
+  </script>
+</body>
+</html>
